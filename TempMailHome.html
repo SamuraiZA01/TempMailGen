@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temp Mail Generator</title>
+   <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Temp Mail Generator</h1>
+        <p>Generate a temporary email address to protect your privacy.</p>
+        <button id="generateBtn">Generate Email</button>
+        <div id="emailDisplay"></div>
+        <a href="ViewMails.html">View Inbox</a>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const emailDisplay = document.getElementById('emailDisplay');
+
+        generateBtn.addEventListener('click', generateEmail);
+
+        async function generateEmail() {
+            try {
+                // Fetch available domains
+                const domainsResponse = await fetch('https://api.mail.tm/domains');
+                const domainsData = await domainsResponse.json();
+                const domain = domainsData['hydra:member'][0].domain;
+
+                // Generate a random username
+                const username = Math.random().toString(36).substring(2, 10);
+                const email = `${username}@${domain}`;
+                const password = Math.random().toString(36).substring(2, 10);
+
+                // Create account
+                const accountResponse = await fetch('https://api.mail.tm/accounts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        address: email,
+                        password: password
+                    }),
+                });
+
+                if (accountResponse.ok) {
+                    emailDisplay.innerHTML = `Your temporary email: <strong>${email}</strong><br>Password: <strong>${password}</strong>`;
+                } else {
+                    throw new Error('Failed to create account');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                emailDisplay.textContent = 'Failed to generate email. Please try again.';
+            }
+        }
+        if (accountResponse.ok) {
+        const tokenResponse = await fetch('https://api.mail.tm/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                address: email,
+                password: password
+            }),
+        });
+    
+        if (tokenResponse.ok) {
+            const tokenData = await tokenResponse.json();
+            localStorage.setItem('tempMailToken', tokenData.token);
+            localStorage.setItem('tempMailAddress', email);
+            emailDisplay.innerHTML = `Your temporary email: <strong>${email}</strong><br>Password: <strong>${password}</strong><br><a href="ViewEmails.html">View Inbox</a>`;
+        } else {
+            throw new Error('Failed to get token');
+        }
+    } else {
+            throw new Error('Failed to create account');
+        }
+    </script>
+
+   
+</body>
+</html>
